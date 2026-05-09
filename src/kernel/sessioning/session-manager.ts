@@ -162,7 +162,7 @@ export class SessionManager {
       throw new SessionAlreadyExistsError(sessionId);
     }
 
-    const agentType = options?.agentType ?? "claude";
+    const agentType = options?.agentType ?? config.agents.default.type;
     const cwd = options?.cwd ?? config.paths.home;
     const channelId = options?.channelId ?? config.messaging.default_channel_id;
     const now = Date.now();
