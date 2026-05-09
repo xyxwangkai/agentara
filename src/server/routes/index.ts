@@ -1,4 +1,5 @@
 export { cronjobsRoutes } from "./cronjobs";
+export { handoffRoutes } from "./handoff";
 export { healthRoutes } from "./health";
 export { memoryRoutes } from "./memory";
 export { sessionRoutes } from "./sessions";

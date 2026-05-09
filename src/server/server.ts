@@ -11,6 +11,7 @@ import { createLogger } from "@/shared";
 
 import {
   cronjobsRoutes,
+  handoffRoutes,
   healthRoutes,
   memoryRoutes,
   sessionRoutes,
@@ -34,6 +35,7 @@ function createApp() {
       // Routes
       .route("/api", healthRoutes)
       .route("/api/cronjobs", cronjobsRoutes)
+      .route("/api/handoff", handoffRoutes)
       .route("/api/memory", memoryRoutes)
       .route("/api/sessions", sessionRoutes)
       .route("/api/skills", skillsRoutes)
