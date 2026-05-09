@@ -22,16 +22,22 @@ export const handoffRoutes = new Hono().post(
         { cwd: body.cwd },
       );
 
-      await kernel.messageGateway.postMessage({
-        role: "assistant",
-        session_id: session.id,
-        content: [
-          {
-            type: "text",
-            text: `Session \`${body.session_id}\` has been handed off from Claude Code. Reply to this message to continue.`,
-          },
-        ],
-      });
+      try {
+        await kernel.messageGateway.postMessage({
+          role: "assistant",
+          session_id: session.id,
+          content: [
+            {
+              type: "text",
+              text: `Session \`${body.session_id}\` has been handed off from Claude Code. Reply to this message to continue.`,
+            },
+          ],
+        });
+      } catch (notifyErr) {
+        logger.error({ err: notifyErr }, "Failed to send handoff notification");
+        kernel.sessionManager.removeSession(session.id);
+        return c.json({ error: "Failed to send notification" }, 500);
+      }
 
       return c.json({ status: "notified", session_id: session.id });
     } catch (err) {
