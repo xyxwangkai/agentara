@@ -30,8 +30,10 @@ async function main(): Promise<void> {
   const endpoint =
     Bun.env.CLAUDE_PLUGIN_OPTION_AGENTARA_ENDPOINT || "http://localhost:1984";
 
+  const base = endpoint.replace(/\/+$/, "");
+
   try {
-    const res = await fetch(`${endpoint}/api/handoff`, {
+    const res = await fetch(`${base}/api/handoff`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -39,10 +41,11 @@ async function main(): Promise<void> {
         session_id: input.session_id,
         cwd: input.cwd,
       }),
+      signal: AbortSignal.timeout(5000),
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
+      const err = (await res.json().catch(() => ({}))) as { error?: string };
       process.stdout.write(
         JSON.stringify({
           continue: true,
