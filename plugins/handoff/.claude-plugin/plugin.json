@@ -1,0 +1,13 @@
+{
+  "name": "handoff",
+  "version": "0.1.0",
+  "description": "Handoff the current Claude Code session to Agentara for continued execution",
+  "author": { "name": "zhangwei.justin" },
+  "userConfig": {
+    "agentara_endpoint": {
+      "type": "string",
+      "title": "Agentara API endpoint",
+      "description": "Agentara server base URL, defaults to http://localhost:1984"
+    }
+  }
+}

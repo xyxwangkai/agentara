@@ -27,6 +27,16 @@ export interface ScheduledTaskPayload extends z.infer<
 > {}
 
 /**
+ * Payload for a handoff request from a Claude Code plugin.
+ */
+export const HandoffPayload = z.object({
+  type: z.literal("handoff"),
+  session_id: z.string(),
+  cwd: z.string().optional(),
+});
+export interface HandoffPayload extends z.infer<typeof HandoffPayload> {}
+
+/**
  * Describes "when" a scheduled task should run.
  * Either `at`/`delay` (one-shot) or `pattern`/`every` (recurring) must be provided.
  */
@@ -71,5 +81,9 @@ export interface TaskSchedule extends z.infer<typeof TaskSchedule> {}
 export const TaskPayload = z.discriminatedUnion("type", [
   InboundMessageTaskPayload,
   ScheduledTaskPayload,
+  HandoffPayload,
 ]);
-export type TaskPayload = InboundMessageTaskPayload | ScheduledTaskPayload;
+export type TaskPayload =
+  | InboundMessageTaskPayload
+  | ScheduledTaskPayload
+  | HandoffPayload;
