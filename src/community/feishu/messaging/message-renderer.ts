@@ -23,8 +23,8 @@ import type {
   MarkdownElement,
 } from "./types";
 
-const MAX_CARD_ELEMENTS = 20;
-const MAX_PANEL_ELEMENTS = 20;
+/** Maximum elements or components in one Feishu card. */
+const MAX_FEISHU_CARD_ELEMENTS = 200;
 
 /**
  * Render assistant message content as a Feishu interactive card.
@@ -111,12 +111,6 @@ export async function renderMessageCard(
   }
 
   const totalStepCount = stepPanel.elements.length;
-  if (totalStepCount > MAX_PANEL_ELEMENTS) {
-    stepPanel.elements = stepPanel.elements.slice(
-      totalStepCount - MAX_PANEL_ELEMENTS,
-    );
-  }
-
   if (totalStepCount > 0) {
     const stepCountText =
       totalStepCount + " " + (totalStepCount === 1 ? "step" : "steps");
@@ -151,8 +145,44 @@ export async function renderMessageCard(
       },
     });
   }
-  card.body.elements = card.body.elements.slice(-MAX_CARD_ELEMENTS);
+  _trimCardElements(card);
   return card;
+}
+
+/** Trim old step elements until the card fits Feishu's card limit. */
+function _trimCardElements(card: Card) {
+  let elementCount = _countElements(card);
+  const stepPanel = card.body.elements.find(
+    (element): element is CollapsiblePanel => element.tag === "collapsible_panel",
+  );
+  if (!stepPanel || elementCount <= MAX_FEISHU_CARD_ELEMENTS) {
+    return;
+  }
+
+  while (
+    stepPanel.elements.length > 0 &&
+    elementCount > MAX_FEISHU_CARD_ELEMENTS
+  ) {
+    const removedElement = stepPanel.elements.shift();
+    elementCount -= _countElements(removedElement);
+  }
+}
+
+function _countElements(value: unknown): number {
+  if (!value || typeof value !== "object") {
+    return 0;
+  }
+
+  const item = value as Record<string, unknown>;
+  const self = typeof item.tag === "string" ? 1 : 0;
+  return Object.values(item).reduce<number>(
+    (count, child) =>
+      count +
+      (Array.isArray(child)
+        ? child.reduce<number>((sum, entry) => sum + _countElements(entry), 0)
+        : _countElements(child)),
+    self,
+  );
 }
 
 async function _uploadMessageResource(
