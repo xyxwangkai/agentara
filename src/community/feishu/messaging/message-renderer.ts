@@ -23,6 +23,9 @@ import type {
   MarkdownElement,
 } from "./types";
 
+const MAX_CARD_ELEMENTS = 20;
+const MAX_PANEL_ELEMENTS = 20;
+
 /**
  * Render assistant message content as a Feishu interactive card.
  * @param messageContent - Array of content blocks (thinking, tool_use, text).
@@ -107,10 +110,16 @@ export async function renderMessageCard(
     }
   }
 
-  const stepCount = stepPanel.elements.length;
-  if (stepCount > 0) {
+  const totalStepCount = stepPanel.elements.length;
+  if (totalStepCount > MAX_PANEL_ELEMENTS) {
+    stepPanel.elements = stepPanel.elements.slice(
+      totalStepCount - MAX_PANEL_ELEMENTS,
+    );
+  }
+
+  if (totalStepCount > 0) {
     const stepCountText =
-      stepCount + " " + (stepCount === 1 ? "step" : "steps");
+      totalStepCount + " " + (totalStepCount === 1 ? "step" : "steps");
     if (streaming) {
       stepPanel.header.title.content = `Working on it (${stepCountText})`;
       card.config!.summary.content = `Working on it (${stepCountText})`;
@@ -142,6 +151,7 @@ export async function renderMessageCard(
       },
     });
   }
+  card.body.elements = card.body.elements.slice(-MAX_CARD_ELEMENTS);
   return card;
 }
 
