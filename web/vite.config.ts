@@ -14,9 +14,13 @@ export default defineConfig({
   ],
   server: {
     port: 8000,
+    watch: {
+      usePolling: true,
+      interval: 1000,
+    },
     proxy: {
       "/api": {
-        target: "http://localhost:1984/api",
+        target: "http://127.0.0.1:1984/api",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
